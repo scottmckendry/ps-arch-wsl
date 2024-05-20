@@ -27,3 +27,23 @@ Describe "Get-ReleaseAsset" {
         }
     }
 }
+
+Describe "Convert-LineEndings" {
+    It "Converts line endings for a file with CRLF" {
+        InModuleScope ps-arch-wsl {
+            $testFile = "$env:TEMP\testfile.txt"
+            $content = "This is a test file with CRLF`r`nit should be converted to LF"
+            Set-Content -Path $testFile -Value $content -NoNewline
+            Convert-LineEndings -Path $testFile
+            $convertedContent = Get-Content -Path $testFile -Raw
+            $convertedContent | Should -Be "This is a test file with CRLF`nit should be converted to LF"
+        }
+    }
+
+    It "Can't find the file" {
+        InModuleScope ps-arch-wsl {
+            $nonExistentFile = "$env:TEMP\nofilehere.txt"
+            { Convert-LineEndings -Path $nonExistentFile } | Should -Throw -ExpectedMessage "Failed to convert line endings: File not found at $nonExistentFile."
+        }
+    }
+}

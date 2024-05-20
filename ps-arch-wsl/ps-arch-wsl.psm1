@@ -13,6 +13,27 @@ function Get-WSLInstallStatus {
     }
 }
 
+function Convert-LineEndings {
+    <#
+    .SYNOPSIS
+        Converts the line endings of a file to LF. This is useful when running scripts in WSL.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    # Check if the file exists
+    if (!(Test-Path $Path)) {
+        throw "Failed to convert line endings: File not found at $Path."
+        return
+    }
+
+    $content = Get-Content -Path $Path -Raw
+    $content = $content -replace "`r`n", "`n"
+    Set-Content -Path $Path -Value $content -NoNewline
+}
+
 function Get-ReleaseAsset {
     <#
     .SYNOPSIS
