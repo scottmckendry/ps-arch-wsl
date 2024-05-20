@@ -191,22 +191,22 @@ function New-ArchUser {
     #>
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Username,
-        [Parameter(Mandatory = $true)]
-        [securestring]$Password
+        [PSCredential]$Credential
     )
 
-    if (!$Password) {
-        throw "Failed to read password for $Username."
-        return
-    }
-
     try {
-        wsl.exe --distribution arch --exec /bin/bash -c "echo `"%wheel ALL=(ALL) ALL`" > /etc/sudoers.d/wheel && useradd -m -G wheel $Username && echo `"$(ConvertFrom-SecureString $Password -AsPlainText)`" | passwd $Username --stdin"
-        arch config --default-user $Username
+        Invoke-ArchScript "echo `"%wheel ALL=(ALL) ALL`" > /etc/sudoers.d/wheel && useradd -m -G wheel $($Credential.GetNetworkCredential().UserName) && echo `"$($Credential.GetNetworkCredential().Password)`" | passwd $($Credential.GetNetworkCredential().UserName) --stdin"
     }
     catch {
-        throw "Failed to create user $($Username): $_"
+        throw "Failed to create user $($Credential.GetNetworkCredential().UserName): $_"
+    }
+
+    # Set the newly created user as the default login
+    try {
+        arch config --default-user $($Credential.GetNetworkCredential().UserName)
+    }
+    catch {
+        throw "Failed to set default user: $_"
     }
 }
 
