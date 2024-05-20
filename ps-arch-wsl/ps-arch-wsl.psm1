@@ -111,11 +111,41 @@ function Install-ArchCertificate {
     }
 }
 
+function Invoke-ArchScript {
+    <#
+    .SYNOPSIS
+        Invokes a script in the ArchWSL distribution.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Script
+    )
+
+    if (!(Get-WSLInstallStatus)) {
+        throw "Failed to invoke script: WSL is not installed. Run 'wsl --install', restart your system and try again."
+        return
+    }
+
+    try {
+        wsl.exe --distribution arch --exec /bin/bash -c $Script
+    }
+    catch {
+        throw "Failed to invoke script: $_"
+    }
+}
+
 function Install-ArchWSL {
     <#
     .SYNOPSIS
         Installs the latest appx package of ArchWSL.
     #>
+
+    param (
+        [Parameter(Mandatory = $false)]
+        [PSCredential]$Credential,
+        [Parameter(Mandatory = $false)]
+        [string]$PostInstallScript
+    )
 
     if (!(Get-WSLInstallStatus)) {
         throw "Failed to update ArchWSL: WSL is not installed. Run 'wsl --install', restart your system and try again."
@@ -141,20 +171,45 @@ function Install-ArchWSL {
     Write-Output "" | arch
 
     Write-Verbose "Setting up keyring."
-    wsl.exe --distribution arch --exec pacman-key --init
-    wsl.exe --distribution arch --exec pacman-key --populate archlinux
-    wsl.exe --distribution arch --exec pacman -Syu --noconfirm archlinux-keyring
+    try {
+        Invoke-ArchScript -Script "pacman-key --init && pacman-key --populate archlinux && pacman -Syu --noconfirm archlinux-keyring"
+    }
+    catch {
+        throw "Failed to set up keyring: $_"
+        return
+    }
 
     Write-Verbose "Installing pacman dependencies."
-    wsl.exe --distribution arch --exec pacman -S --noconfirm git base-devel
+    try {
+        Invoke-ArchScript -Script "pacman -Syu --noconfirm git base-devel"
+    }
+    catch {
+        throw "Failed to install pacman dependencies: $_"
+    }
     Clear-Host
 
-    Write-Verbose "Creating ArchWSL user."
-    $username = $env:USERNAME.ToLower()
-    $pw = Read-Host -Prompt "Enter a password for $username" -AsSecureString
-    New-ArchUser -Username $username -Password $pw
+    if ($Credential) {
+        Write-Verbose "Creating ArchWSL user."
+        New-ArchUser -Credential $Credential
+    }
 
     Write-Output "Successfully installed ArchWSL."
+
+    if ($PostInstallScript) {
+        try {
+            Convert-LineEndings -Path $PostInstallScript
+        }
+        catch {
+            throw "Failed to invoke post-install script: $_"
+        }
+        Convert-LineEndings -Path $PostInstallScript
+        try {
+            wsl.exe --distribution arch -e $PostInstallScript
+        }
+        catch {
+            throw "Failed to invoke post-install script: $_"
+        }
+    }
 }
 
 function Uninstall-ArchWSL {
@@ -174,35 +229,6 @@ function Uninstall-ArchWSL {
     }
 
     Write-Output "Successfully uninstalled ArchWSL."
-}
-
-function Update-ArchWSL {
-    <#
-    .SYNOPSIS
-        Updates ArchWSL to the latest version.
-    #>
-
-    if (!(Get-WSLInstallStatus)) {
-        throw "Failed to update ArchWSL: WSL is not installed. Run 'wsl --install', restart and try again."
-        return
-    }
-
-    Uninstall-ArchWSL
-    try {
-        Install-ArchCertificate
-    }
-    catch {
-        throw "Failed to update certificate: $_"
-        return
-    }
-    try {
-        Install-ArchWSL
-    }
-    catch {
-        throw "Failed to update ArchWSL: $_"
-        return
-    }
-    Write-Output "Successfully updated ArchWSL."
 }
 
 function New-ArchUser {
