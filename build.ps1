@@ -3,6 +3,9 @@ param(
     [string]$Version
 )
 
+# Remove the 'v' from the version number if its present
+$version = $version -replace "v", ""
+
 $manifestParams = @{
     "ModuleVersion"        = $version
     "Path"                 = "./ps-arch-wsl/ps-arch-wsl.psd1"
@@ -18,6 +21,9 @@ $manifestParams = @{
     "PassThru"             = $true
 }
 
+# Copy the README.md file to the module directory
 Copy-Item -Path "./README.md" -Destination "./ps-arch-wsl/README.md" -Force -ErrorAction SilentlyContinue
+
+# Create the module manifest
 Remove-Item -Path "./ps-arch-wsl/ps-arch-wsl.psd1" -Force -ErrorAction SilentlyContinue
 New-ModuleManifest @manifestParams
