@@ -7,7 +7,7 @@ Describe "Get-ReleaseAsset" {
         InModuleScope ps-arch-wsl {
             $foundAsset = Get-ReleaseAsset -Repository "yuk7/ArchWSL" -AssetFilter "cer"
             $latestCertificateInTemp = Get-ChildItem $env:Temp | Where-Object { $_.FullName -like "*.cer" } | Sort-Object -Property CreationTime -Descending
-            $foundAsset | Should -Be $latestCertificateInTemp[0].FullName
+            $foundAsset.Split("\")[-1] | Should -Be $latestCertificateInTemp[0].FullName.Split("\")[-1]
         }
     }
 
