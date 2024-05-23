@@ -1,0 +1,16 @@
+name: Publish
+on: release
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Build and publish
+              env:
+                  NUGET_KEY: ${{ secrets.NUGET_KEY }}
+                  RELEASE_TAG: ${{ github.event.release.tag_name }}
+              shell: pwsh
+              run: |
+                  ./build.ps1 -Version $env:RELEASE_TAG
+                  Publish-Module -Path ./ps-color-scripts -NuGetApiKey $env:NUGET_KEY -Verbose
