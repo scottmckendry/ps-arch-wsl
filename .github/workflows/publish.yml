@@ -13,4 +13,4 @@ jobs:
               shell: pwsh
               run: |
                   ./build.ps1 -Version $env:RELEASE_TAG
-                  Publish-Module -Path ./ps-color-scripts -NuGetApiKey $env:NUGET_KEY -Verbose
+                  Publish-Module -Path ./ps-arch-wsl -NuGetApiKey $env:NUGET_KEY -Verbose
