@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/scottmckendry/ps-arch-wsl/compare/v0.1.1...v0.1.2) (2024-05-24)
+
+
+### Bug Fixes
+
+* **ci:** multiple trigger events on release ([cd6f6b1](https://github.com/scottmckendry/ps-arch-wsl/commit/cd6f6b167401b248388cbd72851ad727da5c7a4b))
+
 ## [0.1.1](https://github.com/scottmckendry/ps-arch-wsl/compare/v0.1.0...v0.1.1) (2024-05-24)
 
 
