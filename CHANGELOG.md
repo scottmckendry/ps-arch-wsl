@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/scottmckendry/ps-arch-wsl/compare/v0.1.0...v0.1.1) (2024-05-24)
+
+
+### Bug Fixes
+
+* typo in exported functions ([f6ed0f7](https://github.com/scottmckendry/ps-arch-wsl/commit/f6ed0f7ba5f39d26141a90c3f01a85815e19d1d0))
+
 ## 0.1.0 (2024-05-23)
 
 
