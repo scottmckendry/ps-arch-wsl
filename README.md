@@ -53,3 +53,5 @@ git clone https://github.com/scottmckendry/dots && cd dots
 $Credential = Get-Credential -UserName "scott"
 Install-ArchWSL -Credential $Credential -PostInstallScript "./post-install.sh"
 ```
+
+[Example in my personal dotfiles](https://github.com/scottmckendry/Windots/tree/main/wsl)
